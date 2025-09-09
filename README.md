@@ -35,6 +35,100 @@ User username: **user**
 
 User password: **password**
 
+## First let build the application
+```sh
+git clone <githublink>
+cd <name>
+
+mvn package
+```
+
+Test error
+```sh
+
+Results :
+
+Tests in error:
+  ShoppingCartApplicationTests.contextLoads » IllegalState Failed to load Applic...
+
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  21.810 s
+[INFO] Finished at: 2025-09-09T09:52:00Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.18.1:test (default-test) on project shopping-cart: There are test failures.
+[ERROR]
+[ERROR] Please refer to /home/ubuntu/Ekart-With-Docker-In-Different-Folder/target/surefire-reports for the individual test results.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+```
+### We will skip test stage
+```sh
+# 1️⃣ -DskipTests=true
+
+mvn package -DskipTests=true
+mvn package -DskipTests
+
+
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.845 s
+[INFO] Finished at: 2025-09-09T09:59:05Z
+[INFO] ------------------------------------------------------------------------
+```
+- What it does: Compiles the tests but does not run them.
+- The test classes are still built and included in the output JAR/WAR if your packaging requires them.
+- Faster than running tests, but still slower than a full skip because it compiles tests.
+
+### We will Check jar artifacts
+```sh
+cd target
+```
+[Where to find the jar file](./maven_jar_notes.md)
+
+```sh
+# 2️⃣ -Dmaven.test.skip=true
+
+mvn package -Dmaven.test.skip=true
+```
+- What it does: Completely skips both compiling and running tests.
+- Maven will not even generate test classes.
+- This gives the fastest build, but can be risky if you forget to test before deploying.
+
+
+### ✅ When to use which
+- Use -DskipTests=true if you want a normal build but don’t want to waste time running tests right now (e.g., testing packaging).
+- Use -Dmaven.test.skip=true if you’re only interested in producing the artifact as fast as possible and don’t care about compiling or running tests at all (e.g., quick builds in CI/CD or debugging builds).
+
+> [!NOTE] 
+> If you can skip tests and Maven will build the JAR/WAR, but your app may still fail at runtime.
+Your failing test is contextLoads, which means the Spring Boot application context didn’t start. If the same cause exists in your real run, the app will also crash when you java -jar it.
+
+
+### How to build the image
+```sh
+cd ~/Ekart-With-Docker-In-Different-Folder
+docker build -t bofosu1/ekart:latest -f docker/Dockerfile .
+```
+
+```sh
+docker run -d -p 8070:8070 --name ekart bofosu1/ekart:latest
+
+docker ps
+
+docker logs <id>
+
+http://98.81.164.3:8070/home
+```
+
 ### Maven Wrapper
 
 #### Using the Maven Plugin
